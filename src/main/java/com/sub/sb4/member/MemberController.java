@@ -67,8 +67,7 @@ public class MemberController {
 		ModelAndView mv = new ModelAndView();
 	 	
 		System.out.println("--- Join ---");
-		if(bindingResult.hasErrors()) {
-			System.out.println("--- 검증 실패 ---");
+		if(memberService.getMemberError(memberVO, bindingResult)) {
 			mv.setViewName("member/memberJoin");
 			return mv;
 		}

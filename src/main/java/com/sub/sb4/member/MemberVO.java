@@ -21,6 +21,8 @@ public class MemberVO {
 	@Length(min =4, max =8)
 	private String pw;
 	
+	private String pw2;
+	
 	@Size(min = 2)
 	private String name;
 	

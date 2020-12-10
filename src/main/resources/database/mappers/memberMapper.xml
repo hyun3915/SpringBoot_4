@@ -5,6 +5,10 @@
 
 <mapper namespace="com.sub.sb4.member.MemberMapper">
 	
+	<select id="getMemberId" parameterType="MemberVO" resultType="MemberVO">
+		select id from member where id=#{id}
+	</select>
+	
 	<insert id="setMemberJoin" parameterType="MemberVO">
 		insert into member(id, pw, name, age, email) values(#{id}, #{pw}, #{name}, #{age}, #{email})
 	</insert>
