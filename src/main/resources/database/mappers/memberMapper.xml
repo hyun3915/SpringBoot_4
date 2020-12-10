@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sub.sb4.member.MemberMapper">
+	
+	<insert id="setMemberJoin" parameterType="MemberVO">
+		insert into member(id, pw, name, age, email) values(#{id}, #{pw}, #{name}, #{age}, #{email})
+	</insert>
+	
+	<insert id="setInsert" parameterType="MemberVO">
+		insert into member(id, pw, name, age, email) values(#{id}, #{pw}, #{name}, #{age}, #{email})
+	</insert>
+	
+	<insert id="setInsertFile" parameterType="MemberFileVO">
+		insert into memberFile(id, fileName, oriName) values(#{id}, #{fileName}, #{oriName})
+	</insert>
+	
+	<select id="getMemberLogin" resultMap="MemberLoginResult" parameterType="MemberVO">
+		select M.id, M.name, MR.role
+		from member M inner join MEMBERROLE MR
+		on M.id = MR.id
+		where M.id=#{id} and M.pw=#{pw};
+	</select>
+	
+	<resultMap type="MemberVO" id="MemberLoginResult">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<collection property="roles" javaType="List" ofType="MemberRoleVO">
+			<result column="role" property="role"/>
+		</collection>
+	</resultMap>
+
+</mapper>

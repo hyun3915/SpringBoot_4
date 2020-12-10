@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sub.sb4.board.qna.QnaMapper">
+
+	<sql id="getSearch">
+		<choose>
+			<when test="kind == 'title'">
+				title
+			</when>
+			<when test="kind == 'writer'">
+				writer
+			</when>
+			<otherwise>
+				contents
+			</otherwise>
+		</choose>
+		like concat('%', #{search},'%') and num>0
+	</sql>
+
+	<select id="getList" parameterType="Pager" resultType="QnaVO">
+		select * from qna where
+		<include refid="getSearch"></include>
+		order by num desc limit #{startRow}, #{perPage}
+	</select>
+	
+	<select id="getCount" resultType="Long" parameterType="Pager">
+		select count(num) from qna where
+		<include refid="getSearch"></include>
+	</select>
+	
+	<insert id="setInsert" parameterType="QnaVO" useGeneratedKeys="true" keyProperty="num">
+		insert into qna(num, title, writer, contents, regDate, hit, ref, step, depth)
+		values(#{num}, #{title}, #{writer}, #{contents}, sysdate(), 0, #{num}, 0, 0)
+	</insert>
+	
+	<update id="setRefUpdate" parameterType="QnaVO">
+		update qna set ref=#{num} where num=#{num}
+	</update>
+	
+	<insert id="setInsertFile" parameterType="FileVO">
+		insert into qnaFiles(num, fileName, oriName) values(#{num}, #{fileName}, #{oriName})
+	</insert>
+	
+		<update id="setUpdate" parameterType="QnaVO">
+      	update qna set title=#{title}, contents=#{contents} where num=#{num}
+   	</update>
+   	
+   	<delete id="setDelete" parameterType="QnaVO">
+     	delete from qna where num= #{num}
+  	</delete>
+   
+   	<select id="getOne" parameterType="QnaVO" resultMap="getOneResult">
+    	select Q.*, QF.*
+		from qna Q left join qnaFiles QF
+		on Q.num = QF.num
+		where Q.num=#{num}
+   	</select>
+   	
+   	<resultMap type="QnaVO" id="getOneResult">
+   		<id column="num" property="num"/>
+		<result column="title" property="title"/>
+		<result column="writer" property="writer"/>
+		<result column="contents" property="contents"/>
+		<result column="regDate" property="regDate"/>
+		<result column="hit" property="hit"/>
+		<result column="ref" property="ref"/>
+		<result column="step" property="step"/>
+		<result column="depth" property="depth"/>
+		<collection property="files" ofType="FileVO" javaType="java.util.List">
+			<id column="fnum" property="fnum"/>
+			<result column="fileName" property="fileName"/>
+			<result column="oriName" property="oriName"/>
+		</collection>
+   	</resultMap>
+   	
+   	<insert id="setReply" parameterType="QnaVO">
+		insert into qna values (#{num}, #{title}, #{writer}, #{contents}, sysdate, 0,
+		(select ref from qna where num=#{num}), 
+		(select step+1 from qna where num=#{num}),
+		(select depth+1 from qna where num=#{num}))
+	</insert>
+	
+	<update id="setReplyUpdate" parameterType="QnaVO">
+		update qna set step=step+1 where 
+		ref=(select ref from qna where num=#{num})
+		and 
+		step> (select step from qna where num=#{num})
+	</update>
+	
+	<select id="getFile" parameterType="FileVO" resultType="FileVO">
+   		select * from qnaFiles where fnum=#{fnum}
+   	</select>
+
+</mapper>
